@@ -2,6 +2,7 @@ import "./App.css";
 import React, { useState } from "react";
 import axios from "axios";
 import { Button, Form, Input, Upload } from "antd";
+import { toast } from "react-toastify";
 
 function App() {
   const [arName, setArName] = useState("");
@@ -11,37 +12,51 @@ function App() {
 
   const token = "152|PVSrBS1Rd4PDK6hEQSGPDQURRCrKWHPzVfkSfVPw";
 
-  const formData = new FormData();
+  const handleFormSubmit = () => {
+    const formData = new FormData();
+    formData.append("name_en", enName);
+    formData.append("name_ar", arName);
+    formData.append("link", url);
+    formData.append("logo", file);
+    axios
+      .post(
+        "https://back-wallpaper.appssquare.com/api/admin/partners",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((res) =>
+        toast.success(res.data.message, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: false,
+          theme: "light",
+        })
+      )
 
-  formData.append("name_en", enName);
-  formData.append("name_ar", arName);
-  formData.append("link", url);
-  formData.append("logo", file);
-
-  const handleFormSubmit = (values) => {
-    // const formData = new FormData(values);
-    console.log([...formData]);
-    console.log(values);
-    // axios
-    //   .post(
-    //     "https://back-wallpaper.appssquare.com/api/admin/partners",
-    //     formData,
-    //     {
-    //       headers: {
-    //         Authorization: `Bearer ${token}`,
-    //       },
-    //     }
-    //   )
-    //   .then((res) => console.log(res.data))
-    //   .catch((err) => console.log(err));
+      .catch((err) =>
+        toast.error(err.response.data.message, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: false,
+          theme: "light",
+        })
+      );
   };
 
   return (
     <div className="App">
       <Form
-        onFinish={(values) => {
-          handleFormSubmit(values);
-        }}
+        onFinish={handleFormSubmit}
         name="wrap"
         labelCol={{ flex: "110px" }}
         labelAlign="left"
@@ -61,7 +76,7 @@ function App() {
             { required: true, message: "please type a valid name in English" },
           ]}
         >
-          <Input />
+          <Input placeholder="EN Name" />
         </Form.Item>
 
         <Form.Item
@@ -75,7 +90,7 @@ function App() {
             { required: true, message: "please type a valid name in Arabic" },
           ]}
         >
-          <Input />
+          <Input placeholder="AR Name" />
         </Form.Item>
         <Form.Item
           name="link"
@@ -97,7 +112,7 @@ function App() {
             },
           ]}
         >
-          <Input placeholder="input placeholder" />
+          <Input placeholder="URL" />
         </Form.Item>
         <Form.Item
           name="logo"
